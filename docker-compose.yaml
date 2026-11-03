@@ -1,0 +1,27 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - LLM_ANALYSIS_URL=http://llm:8000  # Add this line
+    restart: unless-stopped
+    depends_on:
+      - llm
+  llm:
+    image: yb175/pullshark-llm:latest
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  worker:
+    build: ./backend
+    command: node worker/analysis.worker.js
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
+    depends_on:
+      - backend
+
